@@ -1697,3 +1697,860 @@ set null:
 
 ![image-20250803221636952](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250803221637256.png)
 
+
+
+
+
+## 3.9多表查询
+
+### 1.多表关系
+
+#### 概述
+
+项目开发中，在进行数据库表结构设计时，会根据业务需求及业务模块之间的关系，分析并设计表结构，由于业务之间相互关联，所以各个表结构之间也存在着各种联系，基本上分为三种：
+
+​	一对多(多对一)
+​	多对多
+​	一对一
+
+#### 一对多关系
+
+案例：部门与员工的关系
+
+关系：一个部门对应多个员工，一个员工对应一个部门
+
+实现：在多的一方建立外键，指向一的一方的主键
+
+![image-20250804215421466](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804215421762.png)
+
+#### 多对多关系
+
+案例：学生与课程的关系
+关系：一个学生可以选修多门课程，一门课程也可以供多个学生选择
+
+实现：建立第三张中间表，中间表至少包含两个外键，分别关联两方主键
+
+![image-20250804215528756](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804215529052.png)
+
+创建表：
+
+![image-20250804215813004](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804215813300.png)
+
+创建学生与课程的中间表
+
+![image-20250804215849902](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804215850196.png)
+
+![image-20250804215932823](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804215933121.png)
+
+#### 一对一关系
+
+案例：用户与用户详情的关系
+
+关系：一对一关系，多用于<span style="color:#FF007F;">单表拆分</span>，将一张表的基础字段放在一张表中，其他详情字段放在另一张表中，以提升操作效率
+
+实现：<span style="color:#FF0000;">在任意一方加入外键，关联另外一方的主键，并且设置外键为唯一的(UNIQUE)</span>
+
+![image-20250804220203059](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804220203360.png)
+
+![image-20250804220353567](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804220353887.png)
+
+
+
+### 2.多表查询概述
+
+#### 概述
+
+从多张表查询数据
+
+笛卡尔积：笛卡尔乘积是指在数学中，两个集合A集合和B集合的所有组合情况。（在多表查询时，需要消除无效的笛卡尔积)
+
+限制条件
+
+#### 语法
+
+```sq;
+select *
+from emp.dept
+where emp.dept_id = dept.id
+```
+
+#### 多表查询的分类
+
+连接查询：内连接，外连接，自连接
+
+子查询
+
+
+
+
+
+
+
+
+
+### 3.内连接inner  (inner可省略）
+
+相当于查询A、B交集部分数据
+
+![image-20250804221054390](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804221054665.png)
+
+##### 内连接的查询语法
+
+###### 隐式内连接
+
+```sql
+select * from 表1，表2 where 连接条件....;
+```
+
+
+
+###### 显式内连接
+
+```sql
+select * from 表1 inner join 表2 on 连接条件....;
+```
+
+inner 可省略
+
+```sql
+1．查询每一个员工的姓名，及关联的部门的名称（隐式内连接实现）
+select emp.name,dept.name
+from emp,dept
+where emp.dept_id = dept.id
+
+select e.name，d.name from emp e，dept d where e.dept_id=d.id;
+
+2．查询每一个员工的姓名，及关联的部门的名称（显式内连接实现）(inner可省略）
+select emp.name,dept.name
+from emp
+inner join dept on emp.dept_id = dept.id
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 4.外连接outer       (outer可省略)
+
+左外连接：查询左表所有数据，以及两张表交集部分数据
+
+<span style="background:#FF0000;">相当于查询表1(左表)的所有数据包含表1和表2交集部分的数据</span>
+
+
+
+右外连接：查询右表所有数据，以及两张表交集部分数据
+
+<span style="background:#CC0000;">相当于查询表2（右表）的所有数据包含表1和表2交集部分的数据</span>
+
+![image-20250804221054390](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804221131677.png)
+
+```sql
+左外连接：
+select * from 表1 left outer join 表2 on 连接条件....;
+
+右外连接：
+select * from 表1 right outer join 表2 on 连接条件....;
+```
+
+1.查询emp<span style="background:#FF0000;">员工表的所有数据</span>，和对应的部门信息（左外连接）
+表结构：emp，dept
+连接条件：emp.dept_id=dept.id
+
+```sql
+select * from emp
+left join dept on emp.dept_id = dept.id
+```
+
+![image-20250804222740662](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804222740989.png)
+
+2.查询dept<span style="background:#CC0000;">部门表的所有数据</span>，和对应的员工信息（右外连接）
+表结构：emp，dept
+连接条件：emp.dept_id=dept.id
+
+```sql
+select * from emp
+right join dept on emp.dept_id = dept.id
+```
+
+![image-20250804222658159](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804222658510.png)
+
+
+
+
+
+
+
+
+
+
+
+### 5.自连接
+
+当前表与自身的连接查询，自连接必须使用表别名
+
+自连接查询，可以是内连接查询，也可以是外连接查询。
+
+##### 语法结构
+
+```sql
+SELECT 字段列表 FROM 表A 别名A JOIN 表A 别名B ON 条件....;
+```
+
+##### 案例
+
+1．查询员工及其所属领导的名字
+
+员工表中有领导：manager_id，其实manager_id也是员工表的id
+
+![image-20250804223857557](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250804223857911.png)
+
+```sql
+select a.name as 员工名 ,b,name as 领导名字
+from
+ emp a,emp b
+ where
+ a.manager_id = b.id;
+```
+
+
+
+
+
+2.查询所有员工emp及其领导的名字emp，如果员工没有领导，也需要查询出来
+
+```sql
+select a.name as 员工名 ,b,name as 领导名字
+from  emp a
+left join emp b on a.manager_id = b.id;
+```
+
+
+
+
+
+
+
+### 6.联合查询 union和union all
+
+对于union查询，就是把多次查询的结果合并起来，形成一个新的查询结果集。
+
+注意：对于联合查询的多张表的<span style="color:#990000;">列数必须保持一致，字段类型也需要保持一致</span>。
+
+#### 语法
+
+```sql
+select 字段列表 from 表a
+union all
+select 字段列表 from 表b
+```
+
+#### 案例
+
+1.将薪资低于5000的员工，年龄大于50岁的员全部查询出来.
+
+```sql
+select * from emp where salary < 5000
+union all
+select * from emp where age > 50;
+```
+
+此时会发现，有数据会重复
+
+![image-20250805212807470](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805212807761.png)
+
+此时我们去掉union all的all，就会去重
+
+![image-20250805212858679](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805212858953.png)
+
+#### union和union all的区别
+
+union all 是直接将查询的结果合并
+
+union 是将查询的结果合并之后，进行去重
+
+#### 是所有的查询都能union和union all来连接吗
+
+不是，是有对应条件的
+
+如果两个查询的字段不一致，是会报错的
+
+![image-20250805213140071](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805213140307.png)
+
+
+
+
+
+### 7.子查询
+
+#### 什么是子查询
+
+概念：SQL语句中嵌套SELECT语句，称为嵌套查询，又称子查询。
+
+```sql
+select * from t1 where column1 = (select column1 from t2 );
+```
+
+注意：<span style="color:#990000;">子查询外部的语句可以是INSERT/UPDATE/DELETE/SELECT的任何一个。</span>
+
+####  子查询的分类
+
+根据子查询结果不同，分为：
+
+标量子查询（子查询结果为单个值）
+列子查询      (子查询结果为一列)
+行子查询   （子查询结果为一行)
+表子查询     (子查询结果为多行多列)
+
+根据子查询位置，分为：WHERE之后、FROM之后、SELECT之后。
+
+
+
+##### 1.标量子查询
+
+标量子查询（子查询结果为单个值）
+
+子查询返回的结果是单个值（数字、字符串、日期等），最简单的形式，这种子查询成为标量子查询。
+
+```sql
+标量子查询
+1.查询“销售部”的所有员工信息
+a.查询出销售部部门id
+b.根据部门id查询员工信息
+
+select id from dept where name = '销售部';
+select * from emp where dept_id = 4;
+
+结合在一起：
+select * from emp where dept_id = (select id from dept where name = '销售部');
+
+
+2.查询在“方东白”入职之后的员工信息
+a.查询房东白的入职日期
+b.指定入职日期之后的员工信息
+
+select entrydate from emp where name = "方东白";
+select * from emp where entry > "2009-02-12";
+
+结合在一起：
+select * from emp where entry > (select entrydate from emp where name = "方东白");
+
+```
+
+##### 2.列子查询
+
+子查询返回的结果是一列（可以是多行），这种子查询称为列子查询。
+
+常用的操作符：IN、not in、any、some、all
+
+![image-20250805215312443](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805215312656.png)
+
+```sql
+列子查询
+1.查询"销售部"和“市场部”的所有员工信息
+select id from dept where name = "销售部" or = "市场部";
+select * from emp where dept_id in (2,4);
+
+结合：
+select * from emp where dept_id in (select id from dept where name = "销售部" or = "市场部");
+
+
+2.查询比财务部所有人工资都高的员工信息
+select id from dept where name = "财务部";   3
+select salary from emp where dept_id = 3;
+结合：查询到财务部所有人员的工资
+select salary from emp where dept_id = (select id from dept where name = "财务部");
+
+查询比财务部所有人工资都高的员工信息:
+select * from emp where salary > all (select salary from emp where dept_id = (select id from dept where name = "财务部"));
+
+
+
+3．查询比研发部其中任意一人工资高的员工信息
+
+查询研发部的所有人的工资
+select salary from emp where dept_id = (select id from dept where name = "研发部");
+查询比研发部其中任意一人工资高的员工信息
+select * from emp where salary > any (select salary from emp where dept_id = (select id from dept where name = "研发部"));
+
+或者
+select * from emp where salary > some (select salary from emp where dept_id = (select id from dept where name = "研发部"));
+```
+
+
+
+
+
+##### 3.行子查询 
+
+子查询返回的结果是一行（可以是多列），这种子查询称为行子查询。
+
+常用的操作符：=、<>、in、not in
+
+```sql
+-行子查询
+1．查询与“张无忌”的薪资及直属领导相同的员工信息；
+
+select salary,managerId where from emp where name = "张无忌";   
+salary=12500
+managerId=1
+
+select * from emp where (salary,managerId) = (12500,1);
+最终结果
+select * from emp where (salary,managerId) = (select salary,managerId where from emp where name = "张无忌");
+```
+
+![image-20250805220740388](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805220846154.png)
+
+![image-20250805220840253](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805220840529.png)
+
+
+
+##### 4.表子查询
+
+子查询返回的结果是多行多列，这种子查询称为表子查询。
+
+![image-20250805221211349](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805221211619.png)
+
+常用的操作符：in
+
+常见的是作为一个临时表，再和其他表进行联查操作
+
+```sql
+表子查询
+1.查询与”鹿杖客”，“宋远桥”的职位和薪资相同的员工信息
+select job,salary from emp where name = "鹿杖客" or name = "宋远桥";
+
+select * from emp where (job,salary) in (select job,salary from emp where name = "鹿杖客" or name = "宋远桥");
+
+
+ 
+
+
+
+2.查询入职日期是“2006-01-01”之后的员工信息，及其部门信息
+select * from emp where entrydate > "2006-01-01";
+
+
+select * 
+from 
+(select * from emp where entrydate > "2006-01-01") e,
+left join dept d on e.dept_id = d.id
+
+```
+
+查询入职日期是“2006-01-01”之后的员工信息，及其部门信息
+select * from emp where entrydate > "2006-01-01";
+
+![image-20250805221607091](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805221607367.png)
+
+select * 
+from 
+(select * from emp where entrydate > "2006-01-01") e,
+left join dept d on e.dept_id = d.id
+
+![image-20250805221632657](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805221632953.png)
+
+
+
+### 8.多表查询案例
+
+新增薪资等级表
+
+![image-20250805221941863](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805221942153.png)![image-20250805222022290](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805222022567.png)
+
+```sql
+1．查询员工的姓名、年龄、职位、部门信息。
+select
+a.name,a.age,a.job,b.name
+from 
+emp a,dept b
+where a.dept_id = b.id
+
+
+2.查询年龄小于30岁的员工姓名、年龄、职位、部门信息。(重点)
+select
+a.name,a.age,a.job,b.name
+from 
+emp a
+inner join dept b on a.dept_id = b.id
+where a.age < 30
+
+
+3.1查询拥有员工的部门ID、部门名称。(重点)
+select distinct
+b.id,b.name
+from dept b,emp a
+where a.dept_id = b.id
+
+
+4.查询所有年龄大于40岁的员工，及其归属的部门名称；如果员工没有分配部门，也需要展示出来。
+select a.*,b.name
+from emp a
+left join dept b on a.dept_id = b.id
+where a.age > 40;
+```
+
+![image-20250805223215749](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250805223216041.png)
+
+
+
+```sql
+5.查询所有员工的工资等级。（重点）
+emp.salary >= salarygrade.losal and emp.salary <= salarygrade.hisal
+
+select e.*,s.grade from emp e,salarygarde s
+where e.salary >= s.losal and e.salary <= s.hisal
+
+
+6.查询"研发部”所有员工的信息及工资等级。
+select e.*,s.grade
+from emp e,salarygarde s,dept d
+where e.dept_id=d.id and (e.salary between s.losal and s.hisal) 
+and dept.name = "研发部";
+
+
+7.查询"研发部”员工的平均工资。
+select avg(e.salary)
+from emp e,dept d
+where e.dept_id=d.id
+and dept.name = "研发部";
+
+
+8.查询工资比"灭绝”高的员工信息。
+select e.salary
+from emp e
+where e.saraly > (select e.salary from emp where e.name="灭绝")
+
+
+9．查询比平均薪资高的员工信息。
+select e.*
+from emp e
+where e.saraly > (select avg(salary) from emp)
+
+10.查询低于本部门平均工资的员工信息。
+-- 查询指定部门的平均薪资
+select avg(e1.salary) from emp e1 where e1.dept_id = 1
+
+-- 结合
+select e2.* 
+from emp e2  
+where e2.salary < (select avg(e1.salary) from emp e1 where e1.dept_id = e2.dept);
+
+11.查询所有的部门信息，并统计部门的员工人数。
+select id,name,id from dept;
+
+select count(*) from emp where dept_id = 1
+
+-- 结合
+select 
+d.id,
+d.name,
+(select count(e.*) from emp e where e.dept_id = 1) as "人数"
+
+from dept d; 
+
+12.查询所有学生的选课情况，展示出学生名称，学号，课程名称
+表：student
+表 course
+表 student_course
+连接条件：student.id = student_course.studentid    course.id = student_course.courseid
+
+select 
+s.name,s.number,c.name
+from student s,student_soucrse sc,course c
+where s.id = sc.studentid and sc.courseid = c.id
+```
+
+
+
+## 4. 事务
+
+### 1.事务简介
+
+事务是<span style="color:#FF0000;">一组操作的集合</span>，它是一个不可分割的工作单位，事务会<span style="color:#FF0000;">把所有的操作作为一个整体一起向系统提交或撤销操作请求</span>，即这些操作<span style="color:#FF0000;">要么同时成功，要么同时失败</span>。
+
+![image-20250811214937674](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811214937959.png)
+
+在mysql数据库中，事务是默认自动提交的，当我们执行完成增删查改的语句时候，语句一旦执行完成，事务就提交到数据库了，数据库的数据就会马上变更完成
+
+默认MySQL的事务是自动提交的，也就是说，兰当执行一条DML语句，MySQL会立即隐式的提交事务。
+
+
+
+
+
+### 2.事务操作
+
+#### 2.1 数据准备：
+
+![image-20250811215147507](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811215147761.png)
+
+```sql
+-- 转账操作
+1. 查询张三的余额
+2.将张三用户的余额-1000
+3.将李四用户的月+1000
+
+select * from account where name ="张三"
+update account set money = money-1000 where name="张三"
+update account set money = money+1000 where name="李四"
+```
+
+![image-20250811215454445](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811215454663.png)
+
+
+
+#### 2.2 将数据恢复初始状态，模拟异常情况：
+
+给李四账户增加1000的时候出错了
+
+![image-20250811215616841](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811220407617.png)
+
+此时张三-1000 但是李四没有+1000
+
+需要将转账操作控制在一个范围类，按照当前的情况来说，一条sql就是一个事务。默认自动提交
+
+#### 2.3 如何控制事务
+
+##### 2.3.1 查看/设置事务的提交方式
+
+```sql
+select @@autocommit;
+set @@autocommit=0;
+```
+
+##### 2.3.2 提交事务
+
+```sql
+commit;
+```
+
+##### 2.3.4 回滚事务
+
+```sql
+rollback;
+```
+
+
+
+##### 方式一：修改事务的提交方式
+
+查看当前数据库的事务提交方式
+
+select @@cutocommit;
+
+1是自动提交       0是手动提交
+
+
+
+设置完成之后，再进行转账的sql执行
+
+select * from account where name ="张三"
+update account set money = money-1000 where name="张三"
+update account set money = money+1000 where name="李四"
+
+
+
+sql执行完成之后，我们还没有执行提交事务的指令，此时数据库数据还没有变化
+
+-- 提交事务
+
+commit；
+
+执行commit之后数据库才发生变化
+
+ 
+
+如果sql语句执行出错，需要回滚事务
+
+注意：<span style="color:#FF0000;">不回滚的话临时数据还在，当你下次提交的时候 前两条的指令操作也会被提交</span>
+
+rollback；
+
+![image-20250811221342932](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811221343236.png)
+
+
+
+
+
+##### 方式二：不修改事务的提交方式
+
+开启事务
+
+start transaction   或者 begin
+
+提交事务
+
+commit
+
+回滚事务
+
+rollback
+
+
+
+将事务设置回自动提交，auto commit=1
+
+```sql
+开启事务
+start transaction   或者 begin
+
+
+select * from account where name ="张三"
+update account set money = money-1000 where name="张三"
+程序执行报错
+update account set money = money+1000 where name="李四"
+
+提交事务
+commit;
+
+回滚事务
+rollback;
+```
+
+留一个问题：
+
+如何判断sql语句执行成功
+
+
+
+
+
+### 3.事务的四大特性（ACID）
+
+#### 1.原子性
+
+事务是不可分割的最小操作单元，要么全部成功，要么全部失败。
+
+![image-20250811222337682](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811222337945.png)
+
+#### 2.一致性
+
+事务完成时，必须使所有的数据都保持一致状态。
+
+#### 3.隔离性
+
+数据库系统提供的隔离机制，保证事务在不受外部并发操作影响的独立环境下运行。
+
+有若干个并发事务，事务a,事务b都同时在操作这个数据库，
+
+a事务不会影响并发的b事务的运行，b事务不会影响并发的a事务的运行
+
+他们两个事物是在<span style="color:#FF0000;">独立的环境</span>下运行的
+
+#### 4.持久性
+
+事务一旦提交或回滚，它对数据库中的数据的改变就是永久的。
+
+![image-20250811222706754](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811222707025.png)
+
+
+
+
+
+
+
+
+
+### 4.并发事务问题
+
+A事务B事务  同时操作某个数据库，甚至某一张表 所引出的问题
+
+![image-20250811223004306](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250811223004306.png)
+
+#### 1.脏读
+
+一个事务读到另外一个事务还没有提交的数据。
+
+![image-20250811223157068](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811223157352.png)
+
+#### 2.不可重复读
+
+一个事务先后读取同一条记录，但两次读取的数据不同，称之为不可重复读。
+
+![image-20250811223325963](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811223326238.png)
+
+
+
+#### 3.幻读
+
+一个事务按照条件查询数据时，没有对应的数据行，但是在插入数据时，又发现这行数据已经存在，好像出现了
+幻影”。
+
+![image-20250811223633552](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811223633839.png)
+
+
+
+
+
+
+
+
+
+### 5.事务的隔离级别
+
+![image-20250811223823385](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811223823677.png)
+
+mysql 默认是 repeatable read
+
+oracle 默认是 read commit
+
+
+
+Read  uncommitted  这个隔离级别 三个并发事务问题都会出现
+
+read committed 解决了脏读的问题
+
+repeatable read  解决了脏读，不可重复读的问题
+
+Serializable 什么并发事务问题都可以解决
+
+
+
+Serializable 隔离级别是最高的，但是性能最差
+
+Read  uncommitted 性能最高，但是数据安全性最差
+
+
+
+查看事务隔离级别
+
+```sql
+select @@transaction_isolaction
+```
+
+设置事务的隔离级别
+
+```sql
+set [session|global] transaction isolaction 
+level [read uncommitted | read committed | repeatable read | Serializable]
+```
+
+session 表示 会话级别 仅针对当前客户端的会话窗口有效
+
+globa 表示 所有客户端的会话窗口都有效
+
+查看当前事务隔离级别
+
+![image-20250811230214645](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811230214929.png)
+
+设置事务隔离级别
+
+![image-20250811230307548](https://raw.githubusercontent.com/Romantic-1/ImgBed/main/20250811230307838.png)
+
+
+
+#### 验证四个隔离级别是否能解决对应的并发问题
+
+
+
